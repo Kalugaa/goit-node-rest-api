@@ -3,8 +3,8 @@ const Joi = require('joi');
 
 const createContactSchema = Joi.object({
     name: Joi.string().min(2).max(30).required(),
-    email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'ua'] } }),
-    phone: Joi.number(),
+    email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'ua'] } }).required(),
+    phone: Joi.number().required(),
     favorite: Joi.boolean().default(false)
 }).options({ stripUnknown: true })
 
