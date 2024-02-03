@@ -1,116 +1,69 @@
+const { Contact } = require("../models/contactModel");
+const { HttpError } = require('../utils/httpError');
+const { Types } = require('mongoose');
 
-const fs = require('fs/promises');
+const listContacts = () => Contact.find()
 
-const path = require('path');
-const { v4 } = require('uuid');
+const getContactById = (id) => Contact.findById(id)
 
-const contactsPath = path.join(__dirname, '..', 'db', 'contacts.json');
+const removeContact = (id) => Contact.findByIdAndDelete(id)
 
-const listContacts = async () => {
-    try {
-        const usersJson = await fs.readFile(contactsPath)
-        const users = JSON.parse(usersJson)
-        return users
-    } catch (err) {
-        console.log(err.message);
-    }
+const addContact = async (contactData) => {
+
+    const newContactData = contactData.favorite ? contactData : { ...contactData, "favorite": "false" }
+
+    const newContact = Contact.create(newContactData)
+
+    return newContact
 }
 
-const getContactById = async (contactId) => {
-    try {
-        const usersJson = await fs.readFile(contactsPath)
-        const users = JSON.parse(usersJson)
+const updateContactService = async (id, newContactData) => {
+    const contact = await Contact.findById(id)
 
-        const userToFind = users.find(user => user.id === contactId)
+    Object.keys(newContactData).forEach((key) => {
+        contact[key] = newContactData[key];
+    });
 
-        if (!userToFind) {
-            return null
-        }
-
-        return userToFind
-    } catch (err) {
-        console.log(err.message);
-    }
-}
-
-const removeContact = async (contactId) => {
-    try {
-        const usersJson = await fs.readFile(contactsPath)
-        const users = JSON.parse(usersJson)
-
-        const indexToRemove = users.findIndex(user => user.id === contactId);
-
-        if (indexToRemove === -1) {
-            return null;
-        }
-
-        const removedContact = users.splice(indexToRemove, 1)[0];
-
-        await fs.writeFile(contactsPath, JSON.stringify(users, null, 2))
-
-        return removedContact;
-    } catch (err) {
-        console.log(err.message);
-    }
-
+    return contact.save();
 
 }
 
-const addContact = async (name, email, phone) => {
-    try {
-        const usersJson = await fs.readFile(contactsPath)
-        const users = JSON.parse(usersJson)
+const updateStatusContact = async (id, body) => {
+    const contact = await Contact.findById(id)
 
-
-        const newContact = {
-            name,
-            email,
-            phone,
-            id: v4()
-        }
-
-        users.push(newContact)
-
-
-        await fs.writeFile(contactsPath, JSON.stringify(users))
-
-        return newContact
-
-    } catch (err) {
-        console.log(err.message);
+    if (body.favorite !== undefined) {
+        contact.favorite = body.favorite;
+    } else {
+        throw new HttpError(404, 'Invalid request body');
     }
+    return contact.save();
 }
 
-const updateContactService = async (id, data) => {
+const checkContactExist = async (filter) => {
+    const contactExist = await Contact.exists(filter);
 
-    try {
-        const usersJson = await fs.readFile(contactsPath);
-        const users = JSON.parse(usersJson);
+    if (contactExist) throw new HttpError(409, 'Contact already exists..');
+};
 
-        const userToUpdateIndex = users.findIndex(contact => contact.id === id);
+const checkContactId = async (id) => {
+    const isIdValid = Types.ObjectId.isValid(id)
 
-        if (userToUpdateIndex === -1) {
-            return null;
-        }
+    if (!isIdValid) throw new HttpError(404, 'Contact not found..');
 
-        users[userToUpdateIndex] = {
-            ...users[userToUpdateIndex],
-            ...data
-        };
+    const userExists = await Contact.exists({ _id: id });
 
-        await fs.writeFile(contactsPath, JSON.stringify(users, null, 2));
-
-        return users[userToUpdateIndex];
-    } catch (err) {
-        console.log(err.message);
-    }
+    if (!userExists) throw new HttpError(404, 'Contact not found..');
 }
+
 
 
 module.exports = {
     listContacts,
     getContactById,
     removeContact,
+    updateStatusContact,
     addContact,
-    updateContactService
+    updateContactService,
+    checkContactExist,
+    checkContactId
 }
