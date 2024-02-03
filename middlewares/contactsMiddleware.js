@@ -18,8 +18,8 @@ const checkCreateContactData = catchAsync(async (req, res, next) => {
 });
 
 const checkUpdateContactData = catchAsync(async (req, res, next) => {
-
-    if (Object.keys(req.body) ?? Object.keys(req.body).length === 0) throw new HttpError(400, "Body must have at least one field")
+    console.log(Object.keys(req.body).length)
+    if (Object.keys(req.body).length === 0) throw new HttpError(400, "Body must have at least one field")
 
     const { error, value } = updateContactSchema.validate(req.body);
 
@@ -28,6 +28,8 @@ const checkUpdateContactData = catchAsync(async (req, res, next) => {
     await checkContactExist({ email: value.email, _id: { $ne: req.params.id } });
 
     req.body = value;
+
+    next()
 
 });
 
