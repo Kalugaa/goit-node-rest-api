@@ -1,8 +1,6 @@
 
-const { listContacts, getContactById, removeContact, addContact, updateContactService, updateStatusContact } = require('../services/contactsServices');
-const { HttpError } = require('../utils/httpError');
-const { catchAsync } = require('../utils/catchAsync');
-
+const { listContacts, getContactById, removeContact, addContact, updateContactService, updateStatusContact } = require('../services');
+const { HttpError, catchAsync } = require('../utils');
 
 
 const getAllContacts = catchAsync(async (req, res) => {

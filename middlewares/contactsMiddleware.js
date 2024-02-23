@@ -1,7 +1,6 @@
-const { createContactSchema, updateContactSchema, updateFavoriteFieldSchema } = require('../schemas/contactsSchemas.js');
-const { catchAsync } = require('../utils/catchAsync');
-const { HttpError } = require('../utils/httpError');
-const { checkContactExist, checkContactId } = require('../services/contactsServices.js');
+const { createContactSchema, updateContactSchema, updateFavoriteFieldSchema } = require('../schemas');
+const { HttpError, catchAsync } = require('../utils');
+const { checkContactExist, checkContactId } = require('../services');
 
 
 const checkCreateContactData = catchAsync(async (req, res, next) => {

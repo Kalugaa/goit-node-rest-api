@@ -1,5 +1,5 @@
-const { Contact } = require("../models/contactModel");
-const { HttpError } = require('../utils/httpError');
+const { Contact } = require("../models");
+const { HttpError } = require('../utils');
 const { Types } = require('mongoose');
 
 const listContacts = () => Contact.find()

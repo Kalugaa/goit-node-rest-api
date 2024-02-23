@@ -1,7 +1,7 @@
 
 const express = require('express');
-const { getAllContacts, getOneContact, deleteContact, updateFavoriteStatus, createContact, updateContact, } = require("../controllers/contactsControllers.js");
-const { checkContactIdMiddleware, checkUpdateFavoriteContactData, checkCreateContactData, checkUpdateContactData } = require('../middlewares/contactsMiddleware.js');
+const { getAllContacts, getOneContact, deleteContact, updateFavoriteStatus, createContact, updateContact, } = require("../controllers");
+const { checkContactIdMiddleware, checkUpdateFavoriteContactData, checkCreateContactData, checkUpdateContactData } = require('../middlewares');
 
 const contactsRouter = express.Router();
 
