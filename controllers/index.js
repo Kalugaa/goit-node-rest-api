@@ -1,4 +1,6 @@
 const { getAllContacts, getOneContact, deleteContact, createContact, updateContact, updateFavoriteStatus } = require('./contactsControllers');
+const { register, login, logout, getCurrentUser } = require('./usersController');
+
 
 module.exports = {
     getAllContacts,
@@ -6,5 +8,8 @@ module.exports = {
     deleteContact,
     createContact,
     updateContact,
-    updateFavoriteStatus
+    updateFavoriteStatus,
+    register,
+    login, logout,
+    getCurrentUser
 }

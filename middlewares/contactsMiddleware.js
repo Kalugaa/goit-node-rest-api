@@ -9,7 +9,7 @@ const checkCreateContactData = catchAsync(async (req, res, next) => {
 
     if (error) throw new HttpError(400, error.message)
 
-    await checkContactExist({ email: value.email });
+    await checkContactExist(req.user.id, { email: value.email });
 
     req.body = value;
 
@@ -24,7 +24,7 @@ const checkUpdateContactData = catchAsync(async (req, res, next) => {
 
     if (error) throw new HttpError(400, error.message)
 
-    await checkContactExist({ email: value.email, _id: { $ne: req.params.id } });
+    await checkContactExist(req.user.id, { email: value.email, _id: { $ne: req.params.id } });
 
     req.body = value;
 

@@ -2,16 +2,19 @@ const { Contact } = require("../models");
 const { HttpError } = require('../utils');
 const { Types } = require('mongoose');
 
-const listContacts = () => Contact.find()
+const listContacts = (owner) => Contact.find({ owner })
 
 const getContactById = (id) => Contact.findById(id)
 
 const removeContact = (id) => Contact.findByIdAndDelete(id)
 
-const addContact = async (contactData) => {
+const addContact = async (contactData, id) => {
 
-    const newContactData = contactData.favorite ? contactData : { ...contactData, "favorite": "false" }
-
+    const newContactData = {
+        ...contactData,
+        favorite: contactData.favorite || false,
+        owner: id
+    }
     const newContact = Contact.create(newContactData)
 
     return newContact
@@ -39,8 +42,8 @@ const updateStatusContact = async (id, body) => {
     return contact.save();
 }
 
-const checkContactExist = async (filter) => {
-    const contactExist = await Contact.exists(filter);
+const checkContactExist = async (ownerId, filter) => {
+    const contactExist = await Contact.exists({ owner: ownerId, ...filter });
 
     if (contactExist) throw new HttpError(409, 'Contact already exists..');
 };

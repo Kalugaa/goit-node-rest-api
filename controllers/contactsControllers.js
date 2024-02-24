@@ -5,7 +5,7 @@ const { HttpError, catchAsync } = require('../utils');
 
 const getAllContacts = catchAsync(async (req, res) => {
 
-    const contacts = await listContacts()
+    const contacts = await listContacts(req.user.id)
 
     if (!contacts) throw new HttpError(500, 'Something went wrong..')
 
@@ -38,7 +38,7 @@ const deleteContact = catchAsync(async (req, res) => {
 
 const createContact = catchAsync(async (req, res) => {
 
-    const contact = await addContact(req.body)
+    const contact = await addContact(req.body, req.user.id)
 
     res.status(201).json(contact)
 

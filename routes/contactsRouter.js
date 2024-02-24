@@ -1,9 +1,11 @@
 
 const express = require('express');
 const { getAllContacts, getOneContact, deleteContact, updateFavoriteStatus, createContact, updateContact, } = require("../controllers");
-const { checkContactIdMiddleware, checkUpdateFavoriteContactData, checkCreateContactData, checkUpdateContactData } = require('../middlewares');
+const { checkContactIdMiddleware, checkUpdateFavoriteContactData, checkCreateContactData, checkUpdateContactData, protect } = require('../middlewares');
 
 const contactsRouter = express.Router();
+
+contactsRouter.use(protect)
 
 contactsRouter.get("/", getAllContacts);
 
@@ -17,4 +19,4 @@ contactsRouter.put("/:id", checkContactIdMiddleware, checkUpdateContactData, upd
 
 contactsRouter.patch("/:id/favorite", checkContactIdMiddleware, checkUpdateFavoriteContactData, updateFavoriteStatus)
 
-module.exports = contactsRouter
+module.exports = { contactsRouter }
