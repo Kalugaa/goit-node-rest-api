@@ -5,7 +5,7 @@ const { HttpError, catchAsync } = require('../utils');
 
 const getAllContacts = catchAsync(async (req, res) => {
 
-    const contacts = await listContacts(req.user.id)
+    const contacts = await listContacts(req.user)
 
     if (!contacts) throw new HttpError(500, 'Something went wrong..')
 
@@ -16,8 +16,8 @@ const getAllContacts = catchAsync(async (req, res) => {
 
 const getOneContact = catchAsync(async (req, res) => {
 
-    const contact = await getContactById(req.params.id)
-
+    const contact = await getContactById(req.params.id, req.user.id)
+    console.log(contact);
     if (!contact) throw new HttpError(404, 'Not found')
 
     res.status(200).json({
@@ -27,7 +27,7 @@ const getOneContact = catchAsync(async (req, res) => {
 
 const deleteContact = catchAsync(async (req, res) => {
 
-    const contactToDelete = await removeContact(req.params.id)
+    const contactToDelete = await removeContact(req.params.id, req.user.id)
 
     if (!contactToDelete) throw new HttpError(404, 'Not found')
 
@@ -38,7 +38,7 @@ const deleteContact = catchAsync(async (req, res) => {
 
 const createContact = catchAsync(async (req, res) => {
 
-    const contact = await addContact(req.body, req.user.id)
+    const contact = await addContact(req.body, req.user)
 
     res.status(201).json(contact)
 
@@ -47,7 +47,7 @@ const createContact = catchAsync(async (req, res) => {
 const updateContact = catchAsync(async (req, res) => {
 
     const { id } = req.params
-    const updatedContact = await updateContactService(id, req.body)
+    const updatedContact = await updateContactService(id, req.body, req.user.id)
 
     if (!updatedContact) throw new HttpError(400, "Not found")
 
@@ -57,7 +57,7 @@ const updateContact = catchAsync(async (req, res) => {
 
 const updateFavoriteStatus = catchAsync(async (req, res) => {
 
-    const updatedContact = await updateStatusContact(req.params.id, req.body)
+    const updatedContact = await updateStatusContact(req.params.id, req.body, req.user.id)
 
     if (!updatedContact) throw new HttpError(400, "Not found")
 

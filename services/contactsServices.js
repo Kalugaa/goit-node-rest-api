@@ -4,24 +4,24 @@ const { Types } = require('mongoose');
 
 const listContacts = (owner) => Contact.find({ owner })
 
-const getContactById = (id) => Contact.findById(id)
+const getContactById = (id, owner) => Contact.findOne({ _id: id, owner })
 
-const removeContact = (id) => Contact.findByIdAndDelete(id)
+const removeContact = (id, owner) => Contact.findByIdAndDelete({ _id: id, owner })
 
-const addContact = async (contactData, id) => {
+const addContact = async (contactData, owner) => {
 
     const newContactData = {
         ...contactData,
         favorite: contactData.favorite || false,
-        owner: id
+        owner
     }
     const newContact = Contact.create(newContactData)
 
     return newContact
 }
 
-const updateContactService = async (id, newContactData) => {
-    const contact = await Contact.findById(id)
+const updateContactService = async (id, newContactData, owner) => {
+    const contact = await getContactById(id, owner)
 
     Object.keys(newContactData).forEach((key) => {
         contact[key] = newContactData[key];
@@ -31,8 +31,8 @@ const updateContactService = async (id, newContactData) => {
 
 }
 
-const updateStatusContact = async (id, body) => {
-    const contact = await Contact.findById(id)
+const updateStatusContact = async (id, body, owner) => {
+    const contact = await getContactById(id, owner)
 
     if (body.favorite !== undefined) {
         contact.favorite = body.favorite;
@@ -42,8 +42,8 @@ const updateStatusContact = async (id, body) => {
     return contact.save();
 }
 
-const checkContactExist = async (ownerId, filter) => {
-    const contactExist = await Contact.exists({ owner: ownerId, ...filter });
+const checkContactExist = async (owner, filter) => {
+    const contactExist = await Contact.exists({ owner, ...filter });
 
     if (contactExist) throw new HttpError(409, 'Contact already exists..');
 };
