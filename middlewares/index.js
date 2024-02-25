@@ -1,5 +1,5 @@
 const { checkCreateContactData, checkUpdateContactData, checkContactIdMiddleware, checkUpdateFavoriteContactData } = require('./contactsMiddleware');
-const { checkSignUpData, checkLoginData, protect } = require('./userMiddleware');
+const { checkSignUpData, checkLoginData, protect, upload } = require('./userMiddleware');
 
 module.exports = {
     checkCreateContactData,
@@ -7,4 +7,5 @@ module.exports = {
     checkContactIdMiddleware,
     checkUpdateFavoriteContactData,
     checkSignUpData, checkLoginData, protect,
+    upload
 }

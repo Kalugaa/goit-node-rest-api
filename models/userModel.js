@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 
 const userSchema = new Schema({
@@ -20,12 +21,19 @@ const userSchema = new Schema({
         type: String,
         default: null,
     },
+    avatarURL: String,
 }, {
     timestamps: true,
     versionKey: false,
 })
 
 userSchema.pre('save', async function (next) {
+
+    if (this.isNew) {
+        const emailHash = crypto.createHash('md5').update(this.email).digest('hex')
+
+        this.avatarURL = `https://www.gravatar.com/avatar/${emailHash}.jpg?d=robohash`
+    }
 
     if (!this.isModified("password")) return next()
 

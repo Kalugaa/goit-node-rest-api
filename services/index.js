@@ -1,5 +1,5 @@
 const { listContacts, getContactById, removeContact, updateStatusContact, addContact, updateContactService, checkContactExist, checkContactId } = require('./contactsServices');
-const { registerUser, checkUserExists, loginUser, logoutUser } = require('./usersServices');
+const { registerUser, checkUserExists, loginUser, logoutUser, updateAvatar } = require('./usersServices');
 const { checkToken } = require('./jwtServices');
 
 module.exports = {
@@ -12,5 +12,6 @@ module.exports = {
     checkContactExist,
     checkContactId,
     registerUser, checkUserExists,
-    loginUser, checkToken, logoutUser
+    loginUser, checkToken, logoutUser,
+    updateAvatar
 }

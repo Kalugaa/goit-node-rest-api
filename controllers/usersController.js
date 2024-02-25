@@ -1,7 +1,7 @@
 
-const { catchAsync } = require('../utils');
+const { catchAsync, HttpError } = require('../utils');
 
-const { registerUser, loginUser, logoutUser } = require('../services');
+const { registerUser, loginUser, logoutUser, updateAvatar } = require('../services');
 
 const register = catchAsync(async (req, res) => {
 
@@ -37,15 +37,24 @@ const logout = catchAsync(async (req, res) => {
 const getCurrentUser = catchAsync(async (req, res) => {
     const { email, subscription } = req.user
 
-
     res.status(200).json({
         email, subscription
     })
 })
 
+const setAvatar = async (req, res) => {
+    const { id: userId } = req.user;
+
+    if (!req.file) throw new HttpError(400, '"avatarURL" is a required field');
+    const user = await updateAvatar(userId, req.file);
+
+    res.status(200).json({ avatarURL: user.avatarURL });
+};
+
 module.exports = {
     register,
     login,
     logout,
-    getCurrentUser
+    getCurrentUser,
+    setAvatar
 }

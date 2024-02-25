@@ -2,6 +2,8 @@ const { HttpError, catchAsync } = require('../utils');
 const { authSchema } = require('../schemas');
 const { checkUserExists, checkToken } = require('../services');
 const { User } = require('../models');
+const path = require('path');
+const multer = require('multer');
 
 const getUserById = (id) => User.findById(id)
 
@@ -43,4 +45,18 @@ const protect = catchAsync(async (req, res, next) => {
     next()
 })
 
-module.exports = { checkSignUpData, checkLoginData, protect }
+const tempDir = path.join(process.cwd(), 'tmp');
+
+const multerConfig = multer.diskStorage({
+    destination: tempDir,
+    filename: (req, file, cb) => {
+        cb(null, file.originalname);
+    },
+});
+
+const upload = multer({
+    storage: multerConfig,
+});
+
+
+module.exports = { checkSignUpData, checkLoginData, protect, upload }
