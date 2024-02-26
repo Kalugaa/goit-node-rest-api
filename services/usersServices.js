@@ -4,17 +4,18 @@ const { HttpError } = require('../utils');
 const path = require('path');
 const fs = require('fs').promises;
 const jimp = require('jimp');
+const { v4 } = require('uuid');
 
 const setToken = (id, token) => User.findByIdAndUpdate(id, { token: token })
 
 const registerUser = async (data) => {
 
-    const newUser = await User.create(data)
+    const verificationToken = v4()
 
+    const newUser = await User.create({ ...data, verificationToken })
     newUser.password = undefined;
 
     const token = signToken(newUser.id)
-
     newUser.token = token
 
     await setToken(newUser.id, token)
@@ -25,7 +26,6 @@ const registerUser = async (data) => {
 const loginUser = async ({ email, password }) => {
 
     const user = await User.findOne({ email })
-
     if (!user) throw new HttpError(400, "Not authorized...")
 
     const isPasswordValid = await user.checkPassword(password, user.password)
@@ -57,6 +57,7 @@ const checkUserExists = async (filter) => {
 const updateUser = (userId, body) =>
     User.findByIdAndUpdate(userId, body, { new: true })
 
+
 const updateAvatar = async (userId, fileData) => {
     const { path: tempUpload, originalname } = fileData;
 
@@ -72,4 +73,21 @@ const updateAvatar = async (userId, fileData) => {
     return updateUser(userId, { avatarURL });
 };
 
-module.exports = { registerUser, checkUserExists, loginUser, logoutUser, updateAvatar }
+const getUser = (filter) => User.findOne(filter)
+
+const verifyToken = async (filter) => {
+    const user = await getUser({ verificationToken: filter })
+
+    if (!user) throw new HttpError(404, "User not found")
+
+    await updateUser(user.id, {
+        verify: true,
+        verificationToken: null,
+    })
+
+    return
+
+}
+
+
+module.exports = { registerUser, checkUserExists, loginUser, logoutUser, updateAvatar, getUser, verifyToken }

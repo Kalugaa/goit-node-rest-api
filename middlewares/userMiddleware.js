@@ -31,7 +31,6 @@ const checkLoginData = catchAsync(async (req, res, next) => {
 
 const protect = catchAsync(async (req, res, next) => {
     const token = req.headers.authorization?.startsWith('Bearer') && req.headers.authorization.split(' ')[1]
-
     const userId = checkToken(token)
 
     if (!userId) throw new HttpError(400, "Not logged in...")
@@ -39,6 +38,8 @@ const protect = catchAsync(async (req, res, next) => {
     const currentUser = await getUserById(userId)
 
     if (!currentUser) throw new HttpError(400, "Not logged in...")
+
+    if (!currentUser.verify) throw new HttpError(400, "Not logged in...")
 
     req.user = currentUser
 

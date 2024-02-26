@@ -2,6 +2,7 @@ const { Schema, model } = require('mongoose');
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 
+
 const userSchema = new Schema({
     password: {
         type: String,
@@ -22,6 +23,15 @@ const userSchema = new Schema({
         default: null,
     },
     avatarURL: String,
+    verify: {
+        type: Boolean,
+        default: false,
+    },
+    verificationToken: {
+        type: String,
+        required: [true, 'Verify token is required'],
+    },
+
 }, {
     timestamps: true,
     versionKey: false,
@@ -31,7 +41,6 @@ userSchema.pre('save', async function (next) {
 
     if (this.isNew) {
         const emailHash = crypto.createHash('md5').update(this.email).digest('hex')
-
         this.avatarURL = `https://www.gravatar.com/avatar/${emailHash}.jpg?d=robohash`
     }
 
