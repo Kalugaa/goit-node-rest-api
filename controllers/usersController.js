@@ -2,6 +2,7 @@
 const { catchAsync, HttpError } = require('../utils');
 const { sendEmail } = require('../services');
 const { registerUser, loginUser, logoutUser, updateAvatar, verifyToken, getUser } = require('../services');
+const { emailConfirmationTemplate } = require('../helpers/emailConfirmationTemplate');
 
 
 const register = catchAsync(async (req, res) => {
@@ -9,12 +10,10 @@ const register = catchAsync(async (req, res) => {
     const user = await registerUser(req.body)
     const { email, subscription, token, verificationToken } = user
 
-    console.log(user.email);
-
     await sendEmail({
         to: email,
         subject: "Email Verification",
-        html: `<h1>Verify email</h1> <p>Hello, please verify email to URL</p><a>localhost:3000/users/verify/${verificationToken}</a>`
+        html: emailConfirmationTemplate(verificationToken, true)
     });
 
     res.status(200).json({
@@ -73,14 +72,18 @@ const verifyController = catchAsync(async (req, res) => {
 
 const reSendVerifyEmail = catchAsync(async (req, res) => {
 
-    const { email, verificationToken, verify } = await getUser({ email: req.body.email });
+    const user = await getUser({ email: req.body.email });
+
+    if (!user) res.status(200).json({ "message": "Verification email sent" });
+
+    const { email, verificationToken, verify } = user
 
     if (verify) throw new HttpError(400, 'Verification has already been passed');
 
     await sendEmail({
         to: email,
         subject: "Email Verification",
-        html: `<h1>Verify email</h1><p>Hello, please verify email to URL</p><a href="localhost:3000/users/verify/${verificationToken}">localhost:3000/users/verify/${verificationToken}</a>`
+        html: emailConfirmationTemplate(verificationToken)
     });
 
     res.status(200).json({
