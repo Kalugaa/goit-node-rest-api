@@ -74,7 +74,7 @@ const reSendVerifyEmail = catchAsync(async (req, res) => {
 
     const user = await getUser({ email: req.body.email });
 
-    if (!user) res.status(200).json({ "message": "Verification email sent" });
+    if (!user) return res.status(200).json({ "message": "Verification email sent" });
 
     const { email, verificationToken, verify } = user
 
