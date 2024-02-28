@@ -1,103 +1,69 @@
 
-const { listContacts,
-    getContactById,
-    removeContact,
-    addContact,
-    updateContactService } = require('../services/contactsServices');
+const { listContacts, getContactById, removeContact, addContact, updateContactService, updateStatusContact } = require('../services');
+const { HttpError, catchAsync } = require('../utils');
 
-const { createContactSchema, updateContactSchema } = require('../schemas/contactsSchemas');
 
-const getAllContacts = async (req, res) => {
-    try {
-        const users = await listContacts()
+const getAllContacts = catchAsync(async (req, res) => {
 
-        if (!users) res.status(500).json({ msg: "something went wrong" })
+    const contacts = await listContacts(req.user)
 
-        res.status(200).json({
-            users
-        })
+    if (!contacts) throw new HttpError(500, 'Something went wrong..')
 
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ "msg": "Internal Server Error" })
-    }
-};
+    res.status(200).json({
+        contacts
+    })
+});
 
-const getOneContact = async (req, res) => {
-    try {
-        const id = req.params.id
-        const user = await getContactById(id)
-        if (!user) res.status(404).json({
-            msg: 'Not found'
-        })
-        res.status(200).json({
-            user
-        })
+const getOneContact = catchAsync(async (req, res) => {
 
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ "msg": "Internal Server Error" })
-    }
-};
+    const contact = await getContactById(req.params.id, req.user.id)
+    console.log(contact);
+    if (!contact) throw new HttpError(404, 'Not found')
 
-const deleteContact = async (req, res) => {
-    try {
-        const id = req.params.id
-        const contactToDelete = await removeContact(id)
-        if (!contactToDelete) res.status(404).json({
-            msg: 'Not found'
-        })
-        res.status(200).json({
-            contactToDelete
-        })
+    res.status(200).json({
+        contact
+    })
+});
 
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ "msg": "Internal Server Error" })
-    }
-};
+const deleteContact = catchAsync(async (req, res) => {
 
-const createContact = async (req, res) => {
-    try {
-        const { error, value } = createContactSchema.validate(req.body)
+    const contactToDelete = await removeContact(req.params.id, req.user.id)
 
-        if (!error) {
-            const { id, name, email, phone } = await addContact(value)
-            res.status(201).json({ id, name, email, phone })
+    if (!contactToDelete) throw new HttpError(404, 'Not found')
 
-        }
-        res.status(400).json({ "msg": error.message })
+    res.status(200).json({
+        contact: contactToDelete
+    })
+});
 
-    } catch (error) {
-        console.log(error.message)
-        res.status(500).json({ "msg": "Internal Server Error" })
-    }
-};
+const createContact = catchAsync(async (req, res) => {
 
-const updateContact = async (req, res) => {
-    try {
+    const contact = await addContact(req.body, req.user)
 
-        const { error, value } = updateContactSchema.validate(req.body)
-        if (error) res.status(400).json({ "msg": error.message })
-        
-        const bodyLength = Object.keys(value).length
+    res.status(201).json(contact)
 
-        if (bodyLength === 0) res.status(400).json({ "msg": "Body must have at least one field" })
+});
 
-        const { id } = req.params
-        const updatedUser = await updateContactService(id, value)
+const updateContact = catchAsync(async (req, res) => {
 
-        if (!updatedUser) {
-            return res.status(404).json({ "msg": "Not found" });
-        }
+    const { id } = req.params
+    const updatedContact = await updateContactService(id, req.body, req.user.id)
 
-        res.status(200).json({ updatedUser })
-    } catch (error) {
-        console.log(error.message)
-        res.status(500).json({ "msg": "Internal Server Error" })
-    }
+    if (!updatedContact) throw new HttpError(400, "Not found")
 
-};
+    res.status(200).json({ contact: updatedContact })
+
+});
+
+const updateFavoriteStatus = catchAsync(async (req, res) => {
+
+    const updatedContact = await updateStatusContact(req.params.id, req.body, req.user.id)
+
+    if (!updatedContact) throw new HttpError(400, "Not found")
+
+    res.status(200).json({ contact: updatedContact })
+
+});
 
 module.exports = {
     getAllContacts,
@@ -105,4 +71,5 @@ module.exports = {
     deleteContact,
     createContact,
     updateContact,
+    updateFavoriteStatus
 }
