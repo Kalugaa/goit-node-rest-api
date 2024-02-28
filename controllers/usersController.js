@@ -1,8 +1,7 @@
 
 const { catchAsync, HttpError } = require('../utils');
 const { sendEmail } = require('../services');
-const { registerUser, loginUser, logoutUser, updateAvatar, verifyToken, getUser } = require('../services');
-const { emailConfirmationTemplate } = require('../helpers/emailConfirmationTemplate');
+const { registerUser, loginUser, logoutUser, updateAvatar, verifyToken, getUser, emailConfirmationTemplate } = require('../services');
 
 
 const register = catchAsync(async (req, res) => {
